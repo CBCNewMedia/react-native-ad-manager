@@ -90,8 +90,8 @@ RCT_EXPORT_METHOD(init:(NSString *)adUnitID testDevices:(NSArray *)testDevices)
     RNAdManageNativeManager *adsManager = [RNAdManageNativeManager alloc];
 
     adsManager.adUnitID = adUnitID;
-    adsManager.testDevices = RNAdManagerProcessTestDevices(testDevices, kGADSimulatorID);
-    
+    adsManager.testDevices = RNAdManagerProcessTestDevices(testDevices, GADSimulatorID);
+
     _myAdChoiceViewAdUnitID = adUnitID;
 
     [adsManagers setValue:adsManager forKey:adUnitID];
@@ -107,7 +107,7 @@ RCT_EXPORT_METHOD(init:(NSString *)adUnitID testDevices:(NSArray *)testDevices)
     if (adLoaders == nil) {
         adLoaders = [NSMutableDictionary new];
     }
-    
+
     NSString *adLoaderKey = adUnitID;
     if ([validAdTypes containsObject:@"native"]) {
         adLoaderKey = [NSString stringWithFormat:@"%@%@", adLoaderKey, @"native"];
@@ -125,13 +125,13 @@ RCT_EXPORT_METHOD(init:(NSString *)adUnitID testDevices:(NSArray *)testDevices)
         // Loads an ad for any of app install, content, or custom native ads.
         NSMutableArray *adTypes = [[NSMutableArray alloc] init];
         if ([validAdTypes containsObject:@"native"]) {
-            [adTypes addObject:kGADAdLoaderAdTypeNative];
+            [adTypes addObject:GADAdLoaderAdTypeNative];
         }
         if ([validAdTypes containsObject:@"banner"]) {
-            [adTypes addObject:kGADAdLoaderAdTypeGAMBanner];
+            [adTypes addObject:GADAdLoaderAdTypeGAMBanner];
         }
         if ([validAdTypes containsObject:@"template"]) {
-            [adTypes addObject:kGADAdLoaderAdTypeCustomNative];
+            [adTypes addObject:GADAdLoaderAdTypeCustomNative];
         }
 
         GADVideoOptions *videoOptions = [[GADVideoOptions alloc] init];
