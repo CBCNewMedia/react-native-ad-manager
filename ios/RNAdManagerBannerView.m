@@ -42,9 +42,9 @@
     __block NSMutableArray *validAdSizes = [[NSMutableArray alloc] initWithCapacity:adSizes.count];
     [adSizes enumerateObjectsUsingBlock:^(id jsonValue, NSUInteger idx, __unused BOOL *stop) {
         GADAdSize adSize = [RCTConvert GADAdSize:jsonValue];
-        if (GADAdSizeEqualToSize(adSize, GADAdSizeInvalid)) {
+        if (GADAdSizeEqualToSize(adSize, kGADAdSizeInvalid)) {
             RCTLogWarn(@"Invalid adSize %@", jsonValue);
-        } else if (![validAdSizes containsObject:NSValueFromGADAdSize(adSize)]) {
+        } else {
             [validAdSizes addObject:NSValueFromGADAdSize(adSize)];
         }
     }];
@@ -77,11 +77,11 @@
 
     GADAdSize adSize = [RCTConvert GADAdSize:_adSize];
     GAMBannerView *bannerView;
-    if (!GADAdSizeEqualToSize(adSize, GADAdSizeInvalid)) {
+    if (!GADAdSizeEqualToSize(adSize, kGADAdSizeInvalid)) {
 //        self.bannerView.adSize = adSize;
         bannerView = [[GAMBannerView alloc] initWithAdSize:adSize];
     } else {
-        bannerView = [[GAMBannerView alloc] initWithAdSize:GADAdSizeBanner];
+        bannerView = [[GAMBannerView alloc] initWithAdSize:kGADAdSizeBanner];
     }
 
     bannerView.delegate = self;
@@ -115,21 +115,21 @@
         if (keywords != nil) {
             request.keywords = keywords;
         }
-        NSString *content_url = [_targeting objectForKey:@"content_url"];
-        if (content_url != nil) {
-            request.contentURL = content_url;
+        NSString *contentURL = [_targeting objectForKey:@"contentURL"];
+        if (contentURL != nil) {
+            request.contentURL = contentURL;
         }
         NSString *publisherProvidedID = [_targeting objectForKey:@"publisherProvidedID"];
         if (publisherProvidedID != nil) {
             request.publisherProvidedID = publisherProvidedID;
         }
-//        NSDictionary *location = [_targeting objectForKey:@"location"];
-//        if (location != nil) {
-//            CGFloat latitude = [[location objectForKey:@"latitude"] doubleValue];
-//            CGFloat longitude = [[location objectForKey:@"longitude"] doubleValue];
-//            CGFloat accuracy = [[location objectForKey:@"accuracy"] doubleValue];
-//            [request setLocationWithLatitude:latitude longitude:longitude accuracy:accuracy];
-//        }
+        NSDictionary *location = [_targeting objectForKey:@"location"];
+        if (location != nil) {
+            CGFloat latitude = [[location objectForKey:@"latitude"] doubleValue];
+            CGFloat longitude = [[location objectForKey:@"longitude"] doubleValue];
+            CGFloat accuracy = [[location objectForKey:@"accuracy"] doubleValue];
+            [request setLocationWithLatitude:latitude longitude:longitude accuracy:accuracy];
+        }
     }
 
     bannerView.adUnitID = _adUnitID;
@@ -159,23 +159,10 @@
                             @"height": @(bannerView.frame.size.height) });
     }
     if (self.onAdLoaded) {
-//        self.onAdLoaded(@{
-//            @"type": @"banner",
-//            @"gadSize": @{@"width": @(bannerView.frame.size.width),
-//                          @"height": @(bannerView.frame.size.height)},
-//        });
         self.onAdLoaded(@{
             @"type": @"banner",
-            @"gadSize": @{@"adSize": NSStringFromGADAdSize(bannerView.adSize),
-                          @"width": @(bannerView.frame.size.width),
+            @"gadSize": @{@"width": @(bannerView.frame.size.width),
                           @"height": @(bannerView.frame.size.height)},
-            @"isFluid": GADAdSizeIsFluid(bannerView.adSize) ? @"true" : @"false",
-            @"measurements": @{@"adWidth": @(bannerView.adSize.size.width),
-                               @"adHeight": @(bannerView.adSize.size.height),
-                               @"width": @(bannerView.frame.size.width),
-                               @"height": @(bannerView.frame.size.height),
-                               @"left": @(bannerView.frame.origin.x),
-                               @"top": @(bannerView.frame.origin.y)},
         });
     }
 }

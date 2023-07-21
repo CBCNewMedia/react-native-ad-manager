@@ -48,11 +48,9 @@ public class RNAdManageNativeManager extends ReactContextBaseJavaModule {
         final AdsManagerProperties adsManagerProperties = new AdsManagerProperties();
         adsManagerProperties.setAdUnitID(adUnitID);
 
-        if (testDevices != null && testDevices.size() > 0) {
-            ReadableNativeArray nativeArray = (ReadableNativeArray) testDevices;
-            ArrayList<Object> list = nativeArray.toArrayList();
-            adsManagerProperties.setTestDevices(list.toArray(new String[list.size()]));
-        }
+        ReadableNativeArray nativeArray = (ReadableNativeArray) testDevices;
+        ArrayList<Object> list = nativeArray.toArrayList();
+        adsManagerProperties.setTestDevices(list.toArray(new String[list.size()]));
 
         propertiesMap.put(adUnitID, adsManagerProperties);
     }
@@ -123,16 +121,5 @@ public class RNAdManageNativeManager extends ReactContextBaseJavaModule {
         public void setAdUnitID(String adUnitID) {
             this.adUnitID = adUnitID;
         }
-    }
-
-    // Required for rn built in EventEmitter Calls.
-    @ReactMethod
-    public void addListener(String eventName) {
-
-    }
-
-    @ReactMethod
-    public void removeListeners(Integer count) {
-
     }
 }

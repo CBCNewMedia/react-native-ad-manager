@@ -41,7 +41,6 @@ public class RNAdManagerBannerViewManager extends ViewGroupManager<BannerAdView>
     public static final String EVENT_AD_OPENED = "onAdOpened";
     public static final String EVENT_AD_CLOSED = "onAdClosed";
     public static final String EVENT_APP_EVENT = "onAppEvent";
-    public static final String EVENT_AD_RECORD_IMPRESSION = "onAdRecordImpression";
 
     public static final int COMMAND_LOAD_BANNER = 1;
     private final ReactApplicationContext applicationContext;
@@ -58,10 +57,10 @@ public class RNAdManagerBannerViewManager extends ViewGroupManager<BannerAdView>
 
     @Override
     public void onDropViewInstance(BannerAdView view) {
-        if (view.adManagerAdView != null) {
-            view.adManagerAdView.setAppEventListener(null);
-            view.adManagerAdView.setAdListener(null);
-            view.adManagerAdView.destroy();
+        if (view.adView != null) {
+            view.adView.setAppEventListener(null);
+            view.adView.setAdListener(null);
+            view.adView.destroy();
         }
         super.onDropViewInstance(view);
     }
@@ -74,7 +73,7 @@ public class RNAdManagerBannerViewManager extends ViewGroupManager<BannerAdView>
 
     @Override
     public void addView(BannerAdView parent, View child, int index) {
-        throw new RuntimeException("BannerAdView cannot have subviews");
+        throw new RuntimeException("RNPublisherBannerView cannot have subviews");
     }
 
     @Override
@@ -82,13 +81,12 @@ public class RNAdManagerBannerViewManager extends ViewGroupManager<BannerAdView>
     public Map<String, Object> getExportedCustomDirectEventTypeConstants() {
         MapBuilder.Builder<String, Object> builder = MapBuilder.builder();
         String[] events = {
-            EVENT_SIZE_CHANGE,
-            EVENT_AD_LOADED,
-            EVENT_AD_FAILED_TO_LOAD,
-            EVENT_AD_OPENED,
-            EVENT_AD_CLOSED,
-            EVENT_APP_EVENT,
-            EVENT_AD_RECORD_IMPRESSION
+                EVENT_SIZE_CHANGE,
+                EVENT_AD_LOADED,
+                EVENT_AD_FAILED_TO_LOAD,
+                EVENT_AD_OPENED,
+                EVENT_AD_CLOSED,
+                EVENT_APP_EVENT
         };
         for (int i = 0; i < events.length; i++) {
             builder.put(events[i], MapBuilder.of("registrationName", events[i]));
@@ -135,8 +133,8 @@ public class RNAdManagerBannerViewManager extends ViewGroupManager<BannerAdView>
 
         if (targetings.hasNextKey()) {
             for (
-                ReadableMapKeySetIterator it = targetingObjects.keySetIterator();
-                it.hasNextKey();
+                    ReadableMapKeySetIterator it = targetingObjects.keySetIterator();
+                    it.hasNextKey();
             ) {
                 String targetingType = it.nextKey();
 
@@ -165,8 +163,8 @@ public class RNAdManagerBannerViewManager extends ViewGroupManager<BannerAdView>
 
                 if (targetingType.equals(TargetingEnums.getEnumString(TargetingTypes.CONTENTURL))) {
                     view.hasTargeting = true;
-                    String content_url = targetingObjects.getString(targetingType);
-                    view.setContentURL(content_url);
+                    String contentURL = targetingObjects.getString(targetingType);
+                    view.setContentURL(contentURL);
                 }
 
                 if (targetingType.equals(TargetingEnums.getEnumString(TargetingTypes.PUBLISHERPROVIDEDID))) {

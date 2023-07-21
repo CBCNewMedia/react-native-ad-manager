@@ -90,7 +90,7 @@ RCT_EXPORT_METHOD(init:(NSString *)adUnitID testDevices:(NSArray *)testDevices)
     RNAdManageNativeManager *adsManager = [RNAdManageNativeManager alloc];
 
     adsManager.adUnitID = adUnitID;
-    adsManager.testDevices = RNAdManagerProcessTestDevices(testDevices, GADSimulatorID);
+    adsManager.testDevices = RNAdManagerProcessTestDevices(testDevices, kGADSimulatorID);
     
     _myAdChoiceViewAdUnitID = adUnitID;
 
@@ -125,13 +125,13 @@ RCT_EXPORT_METHOD(init:(NSString *)adUnitID testDevices:(NSArray *)testDevices)
         // Loads an ad for any of app install, content, or custom native ads.
         NSMutableArray *adTypes = [[NSMutableArray alloc] init];
         if ([validAdTypes containsObject:@"native"]) {
-            [adTypes addObject:GADAdLoaderAdTypeNative];
+            [adTypes addObject:kGADAdLoaderAdTypeNative];
         }
         if ([validAdTypes containsObject:@"banner"]) {
-            [adTypes addObject:GADAdLoaderAdTypeGAMBanner];
+            [adTypes addObject:kGADAdLoaderAdTypeGAMBanner];
         }
         if ([validAdTypes containsObject:@"template"]) {
-            [adTypes addObject:GADAdLoaderAdTypeCustomNative];
+            [adTypes addObject:kGADAdLoaderAdTypeCustomNative];
         }
 
         GADVideoOptions *videoOptions = [[GADVideoOptions alloc] init];
@@ -188,6 +188,5 @@ RCT_EXPORT_VIEW_PROPERTY(onAdFailedToLoad, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onAdOpened, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onAdClosed, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onAdCustomClick, RCTBubblingEventBlock)
-RCT_EXPORT_VIEW_PROPERTY(onAdRecordImpression, RCTBubblingEventBlock)
 
 @end

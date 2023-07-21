@@ -51,7 +51,7 @@ public class RNAdManagerInterstitial extends ReactContextBaseJavaModule {
     CustomTargeting[] customTargeting;
     String[] categoryExclusions;
     String[] keywords;
-    String content_url;
+    String contentURL;
     String publisherProvidedID;
     Location location;
 
@@ -98,8 +98,8 @@ public class RNAdManagerInterstitial extends ReactContextBaseJavaModule {
 
         if (targetings.hasNextKey()) {
             for (
-                ReadableMapKeySetIterator it = targetingObjects.keySetIterator();
-                it.hasNextKey();
+                    ReadableMapKeySetIterator it = targetingObjects.keySetIterator();
+                    it.hasNextKey();
             ) {
                 String targetingType = it.nextKey();
 
@@ -124,8 +124,8 @@ public class RNAdManagerInterstitial extends ReactContextBaseJavaModule {
                 }
 
                 if (targetingType.equals(TargetingEnums.getEnumString(TargetingTypes.CONTENTURL))) {
-                    String content_url = targetingObjects.getString(targetingType);
-                    this.content_url = content_url;
+                    String contentURL = targetingObjects.getString(targetingType);
+                    this.contentURL = contentURL;
                 }
 
                 if (targetingType.equals(TargetingEnums.getEnumString(TargetingTypes.PUBLISHERPROVIDEDID))) {
@@ -156,9 +156,9 @@ public class RNAdManagerInterstitial extends ReactContextBaseJavaModule {
                 testDevicesList.add(testDevice);
             }
             RequestConfiguration requestConfiguration
-                = new RequestConfiguration.Builder()
-                .setTestDeviceIds(testDevicesList)
-                .build();
+                    = new RequestConfiguration.Builder()
+                    .setTestDeviceIds(testDevicesList)
+                    .build();
             MobileAds.setRequestConfiguration(requestConfiguration);
         }
 
@@ -190,15 +190,15 @@ public class RNAdManagerInterstitial extends ReactContextBaseJavaModule {
                 }
             }
         }
-        if (content_url != null) {
-            adRequestBuilder.setContentUrl(content_url);
+        if (contentURL != null) {
+            adRequestBuilder.setContentUrl(contentURL);
         }
         if (publisherProvidedID != null) {
             adRequestBuilder.setPublisherProvidedId(publisherProvidedID);
         }
-        // if (location != null) {
-        //     adRequestBuilder.setLocation(location);
-        // }
+        if (location != null) {
+            adRequestBuilder.setLocation(location);
+        }
 
         adRequest = adRequestBuilder.build();
 
@@ -221,9 +221,7 @@ public class RNAdManagerInterstitial extends ReactContextBaseJavaModule {
                     AdManagerInterstitialAd.load(reactContext, adUnitId, adRequest, new AdManagerInterstitialAdLoadCallback() {
                         @Override
                         public void onAdLoaded(AdManagerInterstitialAd interstitialAd) {
-                            WritableMap event = Arguments.createMap();
-                            event.putString("type", "interstitial");
-                            sendEvent(EVENT_AD_LOADED, event);
+                            sendEvent(EVENT_AD_LOADED, null);
                             if (mRequestAdPromise != null) {
                                 mRequestAdPromise.resolve(null);
                                 mRequestAdPromise = null;
@@ -279,22 +277,22 @@ public class RNAdManagerInterstitial extends ReactContextBaseJavaModule {
             public void run() {
                 if (mInterstitialAd != null) {
                     mInterstitialAd.setFullScreenContentCallback(
-                        new FullScreenContentCallback() {
-                            @Override
-                            public void onAdDismissedFullScreenContent() {
+                            new FullScreenContentCallback() {
+                                @Override
+                                public void onAdDismissedFullScreenContent() {
 
-                            }
+                                }
 
-                            @Override
-                            public void onAdFailedToShowFullScreenContent(AdError adError) {
+                                @Override
+                                public void onAdFailedToShowFullScreenContent(AdError adError) {
 
-                            }
+                                }
 
-                            @Override
-                            public void onAdShowedFullScreenContent() {
-                                mInterstitialAd = null;
-                            }
-                        });
+                                @Override
+                                public void onAdShowedFullScreenContent() {
+                                    mInterstitialAd = null;
+                                }
+                            });
 
                     final Activity activity = getCurrentActivity();
                     mInterstitialAd.show(activity);
@@ -315,15 +313,4 @@ public class RNAdManagerInterstitial extends ReactContextBaseJavaModule {
             }
         });
     }
-
-     // Required for rn built in EventEmitter Calls.
-     @ReactMethod
-     public void addListener(String eventName) {
- 
-     }
- 
-     @ReactMethod
-     public void removeListeners(Integer count) {
- 
-     }
 }
