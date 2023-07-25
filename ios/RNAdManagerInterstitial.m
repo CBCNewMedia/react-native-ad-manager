@@ -86,21 +86,21 @@ RCT_EXPORT_METHOD(requestAd:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromise
             if (keywords != nil) {
                 request.keywords = keywords;
             }
-            NSString *contentURL = [_targeting objectForKey:@"contentURL"];
-            if (contentURL != nil) {
-                request.contentURL = contentURL;
+            NSString *content_url = [_targeting objectForKey:@"content_url"];
+            if (content_url != nil) {
+                request.contentURL = content_url;
             }
             NSString *publisherProvidedID = [_targeting objectForKey:@"publisherProvidedID"];
             if (publisherProvidedID != nil) {
                 request.publisherProvidedID = publisherProvidedID;
             }
-            NSDictionary *location = [_targeting objectForKey:@"location"];
-            if (location != nil) {
-                CGFloat latitude = [[location objectForKey:@"latitude"] doubleValue];
-                CGFloat longitude = [[location objectForKey:@"longitude"] doubleValue];
-                CGFloat accuracy = [[location objectForKey:@"accuracy"] doubleValue];
-                [request setLocationWithLatitude:latitude longitude:longitude accuracy:accuracy];
-            }
+//            NSDictionary *location = [_targeting objectForKey:@"location"];
+//            if (location != nil) {
+//                CGFloat latitude = [[location objectForKey:@"latitude"] doubleValue];
+//                CGFloat longitude = [[location objectForKey:@"longitude"] doubleValue];
+//                CGFloat accuracy = [[location objectForKey:@"accuracy"] doubleValue];
+//                [request setLocationWithLatitude:latitude longitude:longitude accuracy:accuracy];
+//            }
         }
 
         [GADInterstitialAd loadWithAdUnitID:_adUnitID request:request completionHandler:^(GADInterstitialAd * _Nullable interstitialAd, NSError * _Nullable error) {
@@ -115,7 +115,7 @@ RCT_EXPORT_METHOD(requestAd:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromise
             }
 
             if (hasListeners) {
-                [self sendEventWithName:kEventAdLoaded body:nil];
+                [self sendEventWithName:kEventAdLoaded body:@{ @"type": @"interstitial" }];
             }
             _requestAdResolve(nil);
 
@@ -159,7 +159,7 @@ RCT_EXPORT_METHOD(isReady:(RCTResponseSenderBlock)callback)
 
 #pragma mark GADFullScreenContentDelegate
 
-- (void)adDidPresentFullScreenContent:(id)ad {
+- (void)adWillPresentFullScreenContent:(id)ad {
       NSLog(@"Ad did present full screen content.");
     if (hasListeners){
         [self sendEventWithName:kEventAdOpened body:nil];

@@ -91,7 +91,7 @@ RCT_EXPORT_METHOD(init:(NSString *)adUnitID testDevices:(NSArray *)testDevices)
 
     adsManager.adUnitID = adUnitID;
     adsManager.testDevices = RNAdManagerProcessTestDevices(testDevices, GADSimulatorID);
-
+    
     _myAdChoiceViewAdUnitID = adUnitID;
 
     [adsManagers setValue:adsManager forKey:adUnitID];
@@ -107,7 +107,7 @@ RCT_EXPORT_METHOD(init:(NSString *)adUnitID testDevices:(NSArray *)testDevices)
     if (adLoaders == nil) {
         adLoaders = [NSMutableDictionary new];
     }
-
+    
     NSString *adLoaderKey = adUnitID;
     if ([validAdTypes containsObject:@"native"]) {
         adLoaderKey = [NSString stringWithFormat:@"%@%@", adLoaderKey, @"native"];
@@ -188,5 +188,6 @@ RCT_EXPORT_VIEW_PROPERTY(onAdFailedToLoad, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onAdOpened, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onAdClosed, RCTBubblingEventBlock)
 RCT_EXPORT_VIEW_PROPERTY(onAdCustomClick, RCTBubblingEventBlock)
+RCT_EXPORT_VIEW_PROPERTY(onAdRecordImpression, RCTBubblingEventBlock)
 
 @end

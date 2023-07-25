@@ -1,20 +1,23 @@
-#import "RNAdManagerBannerView.h"
+#import "RNAdManagerAdaptiveBannerView.h"
 
 #import <GoogleMobileAds/GoogleMobileAds.h>
 #import <React/RCTUtils.h>
 
 #import <React/RCTLog.h>
 
-#include "RCTConvert+GADAdSize.h"
 #import "RNAdManagerUtils.h"
 
-@interface RNAdManagerBannerView () <GADBannerViewDelegate, GADAdSizeDelegate, GADAppEventDelegate>
+@interface RNAdManagerAdaptiveBannerView () <GADBannerViewDelegate, GADAdSizeDelegate, GADAppEventDelegate>
 
 @property (nonatomic, strong) GAMBannerView *bannerView;
 
 @end
 
-@implementation RNAdManagerBannerView
+@implementation RNAdManagerAdaptiveBannerView
+{
+    BOOL _isFrameLayout;
+    BOOL _loadOnFrameLayout;
+}
 
 - (void)dealloc
 {
@@ -28,35 +31,21 @@
 - (void)setAdUnitID:(NSString *)adUnitID
 {
   _adUnitID = adUnitID;
-//  [self createViewIfCan];
 }
 
-- (void)setAdSize:(NSString *)adSize
+- (void)setAdPosition:(NSString *)adPosition
 {
-  _adSize = adSize;
-//  [self createViewIfCan];
+  _adPosition = adPosition;
 }
 
-- (void)setValidAdSizes:(NSArray *)adSizes
+- (void)setMaxHeight:(NSNumber *)maxHeight
 {
-    __block NSMutableArray *validAdSizes = [[NSMutableArray alloc] initWithCapacity:adSizes.count];
-    [adSizes enumerateObjectsUsingBlock:^(id jsonValue, NSUInteger idx, __unused BOOL *stop) {
-        GADAdSize adSize = [RCTConvert GADAdSize:jsonValue];
-        if (GADAdSizeEqualToSize(adSize, GADAdSizeInvalid)) {
-            RCTLogWarn(@"Invalid adSize %@", jsonValue);
-        } else if (![validAdSizes containsObject:NSValueFromGADAdSize(adSize)]) {
-            [validAdSizes addObject:NSValueFromGADAdSize(adSize)];
-        }
-    }];
-
-    _validAdSizes = validAdSizes;
-//    [self createViewIfCan];
+  _maxHeight = maxHeight;
 }
 
 - (void)setTargeting:(NSDictionary *)targeting
 {
   _targeting = targeting;
-//  [self createViewIfCan];
 }
 
 - (void)setCorrelator:(NSString *)correlator
@@ -67,22 +56,46 @@
 // Initialise BannerAdView as soon as all the props are set
 - (void)createViewIfCan
 {
-    if (!_adUnitID || !_adSize/* || !_validAdSizes || !_targeting*/) {
+    if (!_adUnitID) {
         return;
     }
 
     if (_bannerView) {
         [_bannerView removeFromSuperview];
     }
-
-    GADAdSize adSize = [RCTConvert GADAdSize:_adSize];
-    GAMBannerView *bannerView;
-    if (!GADAdSizeEqualToSize(adSize, GADAdSizeInvalid)) {
-//        self.bannerView.adSize = adSize;
-        bannerView = [[GAMBannerView alloc] initWithAdSize:adSize];
-    } else {
-        bannerView = [[GAMBannerView alloc] initWithAdSize:GADAdSizeBanner];
+    CGRect frame = self.frame;
+    // Here safe area is taken into account, hence the view frame is used after the
+    // view has been laid out.
+    if (@available(iOS 11.0, *)) {
+      frame = UIEdgeInsetsInsetRect(self.frame, self.safeAreaInsets);
     }
+    CGFloat viewWidth = frame.size.width;
+    // Here the current interface orientation is used. If the ad is being preloaded
+    // for a future orientation change or different orientation, the function for the
+    // relevant orientation should be used.
+    GADAdSize adSize;
+    if ([_adPosition isEqualToString:@"currentOrientationAnchored"]) {
+        adSize = GADCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(viewWidth);
+    } else if ([_adPosition isEqualToString:@"currentOrientationInline"]) {
+        adSize = GADPortraitInlineAdaptiveBannerAdSizeWithWidth(viewWidth);
+    } else if ([_adPosition isEqualToString:@"portraitInline"]) {
+        adSize = GADPortraitInlineAdaptiveBannerAdSizeWithWidth(viewWidth);
+    } else if ([_adPosition isEqualToString:@"landscapeInline"]) {
+        adSize = GADLandscapeInlineAdaptiveBannerAdSizeWithWidth(viewWidth);
+    } else { // _adPosition == "inline"
+        CGFloat adMaxHeight;
+        if (_maxHeight == nil) {
+            CGFloat viewHeight = frame.size.height;
+            if (viewHeight == 0) {
+                viewHeight = 350;
+            }
+            adMaxHeight = viewHeight;
+        } else {
+            adMaxHeight = [_maxHeight doubleValue];
+        }
+        adSize = GADInlineAdaptiveBannerAdSizeWithWidthAndMaxHeight(viewWidth, adMaxHeight);
+    }
+    GAMBannerView *bannerView = [[GAMBannerView alloc] initWithAdSize:adSize];
 
     bannerView.delegate = self;
     bannerView.adSizeDelegate = self;
@@ -123,18 +136,10 @@
         if (publisherProvidedID != nil) {
             request.publisherProvidedID = publisherProvidedID;
         }
-//        NSDictionary *location = [_targeting objectForKey:@"location"];
-//        if (location != nil) {
-//            CGFloat latitude = [[location objectForKey:@"latitude"] doubleValue];
-//            CGFloat longitude = [[location objectForKey:@"longitude"] doubleValue];
-//            CGFloat accuracy = [[location objectForKey:@"accuracy"] doubleValue];
-//            [request setLocationWithLatitude:latitude longitude:longitude accuracy:accuracy];
-//        }
     }
 
     bannerView.adUnitID = _adUnitID;
-
-    bannerView.validAdSizes = _validAdSizes;
+    bannerView.adSize = adSize;
 
     [bannerView loadRequest:request];
 
@@ -144,7 +149,23 @@
 }
 
 - (void)loadBanner {
-    [self createViewIfCan];
+    if (_isFrameLayout) {
+        [self createViewIfCan];
+    } else {
+        _loadOnFrameLayout = YES;
+    }
+}
+
+-(void)layoutSubviews
+{
+    [super layoutSubviews];
+    if (!_isFrameLayout) {
+        _isFrameLayout = YES;
+        if (_loadOnFrameLayout) {
+            _loadOnFrameLayout = NO;
+            [self createViewIfCan];
+        }
+    }
 }
 
 # pragma mark GADBannerViewDelegate
@@ -159,17 +180,12 @@
                             @"height": @(bannerView.frame.size.height) });
     }
     if (self.onAdLoaded) {
-//        self.onAdLoaded(@{
-//            @"type": @"banner",
-//            @"gadSize": @{@"width": @(bannerView.frame.size.width),
-//                          @"height": @(bannerView.frame.size.height)},
-//        });
         self.onAdLoaded(@{
             @"type": @"banner",
             @"gadSize": @{@"adSize": NSStringFromGADAdSize(bannerView.adSize),
                           @"width": @(bannerView.frame.size.width),
                           @"height": @(bannerView.frame.size.height)},
-            @"isFluid": GADAdSizeIsFluid(bannerView.adSize) ? @"true" : @"false",
+            @"isFluid": @"false",
             @"measurements": @{@"adWidth": @(bannerView.adSize.size.width),
                                @"adHeight": @(bannerView.adSize.size.height),
                                @"width": @(bannerView.frame.size.width),
