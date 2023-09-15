@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.description  = <<-DESC
                   react-native-ad-manager
                    DESC
-  s.homepage     = package["homepage"]
+  s.homepage     = "https://github.com/NZME/react-native-ad-manager.git"
   s.license      = package["license"]
   s.authors      = package["author"]
 
