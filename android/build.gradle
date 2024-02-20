@@ -1,7 +1,7 @@
-def DEFAULT_COMPILE_SDK_VERSION = 29
-// def DEFAULT_BUILD_TOOLS_VERSION = '29.0.2'
+def DEFAULT_COMPILE_SDK_VERSION = 31
+def DEFAULT_BUILD_TOOLS_VERSION = '29.0.2'
 def DEFAULT_MIN_SDK_VERSION = 21
-def DEFAULT_TARGET_SDK_VERSION = 29
+def DEFAULT_TARGET_SDK_VERSION = 31
 
 buildscript {
     if (project == rootProject) {
@@ -28,6 +28,7 @@ android {
     defaultConfig {
         minSdkVersion safeExtGet('minSdkVersion', DEFAULT_MIN_SDK_VERSION)
         targetSdkVersion safeExtGet('targetSdkVersion', DEFAULT_TARGET_SDK_VERSION)
+        buildToolsVersion safeExtGet('buildToolsVersion', DEFAULT_BUILD_TOOLS_VERSION)
         versionCode 1
         versionName "1.0"
     }
