@@ -14,6 +14,7 @@
     "url": "git+https://github.com/Freddixx/react-native-ad-manager.git",
     "baseUrl": "https://github.com/Freddixx/react-native-ad-manager"
   },
+  "homepage": "https://github.com/Freddixx/react-native-ad-manager",
   "keywords": [
     "react-native"
   ],
